@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Вход — NVPhotos</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="login-page">
+
+<div class="login-wrapper">
+  <div class="login-box">
+    <h1 class="login-title">Вход в админку</h1>
+
+    <form id="login-form" class="login-form">
+      <label class="form-field">
+        <span>Логин</span>
+        <input type="text" id="login-input" placeholder="admin" required>
+      </label>
+
+      <label class="form-field">
+        <span>Пароль</span>
+        <input type="password" id="password-input" placeholder="••••••••" required>
+      </label>
+
+      <div id="login-error" class="form-error"></div>
+
+      <button type="submit" class="checkout-btn">Войти</button>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.getElementById('login-form');
+  const errorEl = document.getElementById('login-error');
+
+  const token = localStorage.getItem('nvphotos_admin_token');
+  if (token) {
+    window.location.href = 'admin.html';
+    return;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorEl.textContent = '';
+
+    const login = document.getElementById('login-input').value.trim();
+    const password = document.getElementById('password-input').value.trim();
+
+    if (!login || !password) {
+      errorEl.textContent = 'Введите логин и пароль';
+      return;
+    }
+
+    try {
+      const res = await fetch('http://localhost:3000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ login, password })
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem('nvphotos_admin_token', data.token);
+        localStorage.setItem('nvphotos_admin_login', data.login);
+        window.location.href = 'admin.html';
+      } else {
+        errorEl.textContent = data.error || 'Неверный логин или пароль';
+      }
+    } catch (err) {
+      console.error(err);
+      errorEl.textContent = 'Ошибка соединения с сервером';
+    }
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Отзывы — Админка NVPhotos</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div id="header-slot"></div>
+<div id="layout-slot"></div>
+
+<script src="admin.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  renderHeader();
+  renderLayoutShell('reviews', `
+    <div class="admin-header-row">
+      <h1 class="admin-page-title">Отзывы</h1>
+    </div>
+    <table class="admin-table">
+      <thead>
+        <tr><th>ID</th><th>Автор</th><th>Текст</th><th>Оценка</th><th>Опубл.</th><th>Действия</th></tr>
+      </thead>
+      <tbody id="reviews-tbody"></tbody>
+    </table>
+  `);
+
+  adminInit('reviews', async () => {
+    await loadReviews();
+  });
+});
+
+async function loadReviews() {
+  const tbody = document.getElementById('reviews-tbody');
+  const items = await AdminAPI.get('/admin/reviews');
+
+  tbody.innerHTML = items.map(r => `
+    <tr>
+      <td>${r.Id}</td>
+      <td>${r.AuthorName}</td>
+      <td>${(r.ReviewText || '').substring(0, 70)}…</td>
+      <td>${r.Rating}/5</td>
+      <td>${r.IsPublished ? 'Да' : 'Нет'}</td>
+      <td>
+        <button class="btn-small btn-edit" data-action="toggle" data-id="${r.Id}" data-pub="${r.IsPublished ? 1 : 0}">
+          ${r.IsPublished ? 'Снять' : 'Опубликовать'}
+        </button>
+        <button class="btn-small btn-delete" data-action="delete" data-id="${r.Id}">Удалить</button>
+      </td>
+    </tr>`).join('') || `<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">Пусто</td></tr>`;
+
+  tbody.querySelectorAll('button[data-action="toggle"]').forEach(b => {
+    b.addEventListener('click', async () => {
+      const newVal = b.dataset.pub === '1' ? 0 : 1;
+      await AdminAPI.put(`/admin/reviews/${b.dataset.id}/publish`, { IsPublished: newVal });
+      loadReviews();
+    });
+  });
+
+  tbody.querySelectorAll('button[data-action="delete"]').forEach(b => {
+    b.addEventListener('click', async () => {
+      if (!confirm('Удалить отзыв?')) return;
+      await AdminAPI.del(`/admin/reviews/${b.dataset.id}`);
+      loadReviews();
+    });
+  });
+}
+</script>
+</body>
+</html>

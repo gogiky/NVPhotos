@@ -1,0 +1,64 @@
+CREATE DATABASE NVPhotos;
+GO
+
+USE NVPhotos;
+GO
+
+CREATE TABLE Categories (
+  Id INT IDENTITY(1,1) PRIMARY KEY,
+  Name NVARCHAR(100) NOT NULL
+);
+
+CREATE TABLE Services (
+  Id INT IDENTITY(1,1) PRIMARY KEY,
+  Title NVARCHAR(200) NOT NULL,
+  Description NVARCHAR(MAX),
+  Price DECIMAL(10,2),
+  ImageUrl NVARCHAR(500),
+  CategoryId INT FOREIGN KEY REFERENCES Categories(Id)
+);
+
+CREATE TABLE Promocodes (
+  Id INT IDENTITY(1,1) PRIMARY KEY,
+  Code NVARCHAR(50) UNIQUE NOT NULL,
+  DiscountPercent INT NULL,
+  DiscountAmount DECIMAL(10,2) NULL,
+  ExpiresAt DATETIME NULL,
+  UsageLimit INT NULL,
+  UsedCount INT DEFAULT 0
+);
+
+CREATE TABLE Orders (
+  Id INT IDENTITY(1,1) PRIMARY KEY,
+  CustomerName NVARCHAR(200),
+  Phone NVARCHAR(50),
+  ShootTime DATETIME,
+  Total DECIMAL(10,2),
+  PromocodeId INT NULL FOREIGN KEY REFERENCES Promocodes(Id),
+  Status NVARCHAR(50) DEFAULT 'Новый',
+  CreatedAt DATETIME DEFAULT GETDATE()
+);
+
+CREATE TABLE OrderItems (
+  Id INT IDENTITY(1,1) PRIMARY KEY,
+  OrderId INT FOREIGN KEY REFERENCES Orders(Id),
+  ServiceId INT FOREIGN KEY REFERENCES Services(Id),
+  Quantity INT DEFAULT 1,
+  Price DECIMAL(10,2)
+);
+
+CREATE TABLE Reviews (
+  Id INT IDENTITY(1,1) PRIMARY KEY,
+  AuthorName NVARCHAR(200),
+  ReviewText NVARCHAR(MAX),
+  Rating INT,
+  CreatedAt DATETIME DEFAULT GETDATE()
+);
+
+CREATE TABLE Achievements (
+  Id INT IDENTITY(1,1) PRIMARY KEY,
+  Title NVARCHAR(200),
+  Description NVARCHAR(MAX),
+  ImageUrl NVARCHAR(500),
+  Year INT
+);

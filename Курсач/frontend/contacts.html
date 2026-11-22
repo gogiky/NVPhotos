@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Контакты — NVPhotos</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+  <div class="container header-inner">
+    <a href="index.html" class="logo">
+      <img class="logo-icon" src="img/logo.jpg" alt="NVPhotos">
+      NVPhotos
+    </a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Главная</a></li>
+        <li><a href="services.html">Услуги</a></li>
+        <li><a href="achievements.html">Достижения</a></li>
+        <li><a href="portfolio.html">Портфолио</a></li>
+        <li><a href="contacts.html" class="active">Контакты</a></li>
+        <li><a href="reviews.html">Отзывы</a></li>
+        <li><a href="#" id="cart-link">Корзина <span id="cart-count">0</span></a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<section class="services-header">
+  <div class="container">
+    <h1 class="services-page-title">Контакты</h1>
+  </div>
+</section>
+
+<section class="all-services">
+  <div class="container">
+    <div class="contacts-wrapper">
+
+      <div class="contacts-info">
+        <h2 class="contacts-title">Свяжитесь со мной</h2>
+        <p class="contacts-text">
+          Если у вас есть вопросы по услугам, срокам или стоимости — напишите или позвоните.
+          Отвечаю в течение дня.
+        </p>
+
+        <ul class="contacts-list">
+          <li>
+            <span class="contacts-label">Телефон:</span>
+            <a href="tel:+79000173701">+7 (900) 017-37-01</a>
+          </li>
+          <li>
+            <span class="contacts-label">Email:</span>
+            <a href="mailto:NVphotos@gmail.com">NVPhotos@gmail.com</a>
+          </li>
+          <li>
+            <span class="contacts-label">Telegram:</span>
+            <a href="https://t.me/senikyn" target="_blank">@senikyn</a>
+          </li>
+          <li>
+            <span class="contacts-label">VK:</span>
+            <a href="https://vk.com/gogiky" target="_blank">vk.com/gogiky</a>
+          </li>
+          <li>
+            <span class="contacts-label">Город:</span>
+            <span>Тверь</span>
+          </li>
+        </ul>
+
+        <div class="contacts-socials">
+          <a href="https://vk.ru/copilka_vospominanii" title="VK">VK</a>
+          <a href="https://t.me/bank_of_memorie" title="Telegram">TG</a>
+          <a href="https://ru.pinterest.com/BankofMemoriesOff/" title="Pinterest">PIN</a>
+        </div>
+      </div>
+
+      <div class="contacts-form-block">
+        <h2 class="contacts-title">Написать сообщение</h2>
+
+        <form id="contact-form" class="contact-form">
+          <label class="form-field">
+            <span>Имя</span>
+            <input type="text" id="contact-name" placeholder="Ваше имя" required>
+          </label>
+
+          <label class="form-field">
+            <span>Email или телефон</span>
+            <input type="text" id="contact-contact" placeholder="example@mail.ru или +7 (___) ___-__-__" required>
+          </label>
+
+          <label class="form-field">
+            <span>Сообщение</span>
+            <textarea id="contact-message" rows="5" placeholder="Ваш вопрос или пожелание" required></textarea>
+          </label>
+
+          <div id="contact-status" class="form-success" style="display:none;"></div>
+
+          <button type="submit" class="checkout-btn">Отправить</button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-logo">
+        <img class="logo-icon" src="img/logo.jpg" alt="NVPhotos">
+        NVPhotos
+      </div>
+      <nav class="footer-nav">
+        <ul>
+          <li><a href="index.html">Главная</a></li>
+          <li><a href="services.html">Услуги</a></li>
+          <li><a href="achievements.html">Достижения</a></li>
+          <li><a href="portfolio.html">Портфолио</a></li>
+          <li><a href="reviews.html">Отзывы</a></li>
+          <li><a href="contacts.html">Контакты</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="socials">
+        <a href="https://vk.ru/copilka_vospominanii" title="VK">VK</a>
+        <a href="https://t.me/bank_of_memorie" title="Telegram">TG</a>
+        <a href="https://ru.pinterest.com/BankofMemoriesOff/" title="Pinterest">PIN</a>
+      </div>
+      <div class="copyright">Все права защищены © 2026</div>
+    </div>
+  </div>
+</footer>
+
+<div class="cart-modal" id="cart-modal">
+  <div class="cart-modal-content">
+    <span class="cart-close" id="cart-close">&times;</span>
+    <h2>Корзина</h2>
+
+    <div id="cart-items"></div>
+
+    <div class="cart-row">
+      <span>Подытог:</span>
+      <span id="cart-subtotal">0 ₽</span>
+    </div>
+
+    <div class="cart-row cart-row-discount" style="display:none;">
+      <span>Скидка:</span>
+      <span id="cart-discount">0%</span>
+    </div>
+
+    <div class="cart-row cart-row-total">
+      <span>Итого:</span>
+      <span id="cart-total">0 ₽</span>
+    </div>
+
+    <div class="cart-promo">
+      <input type="text" id="promo-input" placeholder="Промокод">
+      <button id="promo-apply" type="button">Применить</button>
+    </div>
+    <div id="promo-message"></div>
+
+    <button class="checkout-btn" id="checkout-btn" type="button">Оформить заказ</button>
+  </div>
+</div>
+
+<div class="cart-modal" id="checkout-modal">
+  <div class="cart-modal-content">
+    <span class="cart-close" id="checkout-close">&times;</span>
+    <h2>Оформление заказа</h2>
+
+    <form id="checkout-form">
+      <label class="form-field">
+        <span>Имя</span>
+        <input type="text" id="checkout-name" placeholder="Ваше имя" required>
+      </label>
+
+      <label class="form-field">
+        <span>Телефон</span>
+        <input type="tel" id="checkout-phone" placeholder="+7 (___) ___-__-__" required>
+      </label>
+
+      <label class="form-field">
+        <span>Желаемое время съёмки</span>
+        <input type="text" id="checkout-time" placeholder="Например: 15.05.2025, 14:00" required>
+      </label>
+
+      <label class="form-field">
+        <span>Комментарий (необязательно)</span>
+        <textarea id="checkout-comment" rows="3" placeholder="Пожелания, место съёмки, детали"></textarea>
+      </label>
+
+      <div id="checkout-error" class="form-error"></div>
+      <div id="checkout-success" class="form-success" style="display:none;"></div>
+
+      <button type="submit" class="checkout-btn">Подтвердить заказ</button>
+    </form>
+  </div>
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/checkout.js"></script>
+<script src="js/contacts.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    Cart.init();
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Услуги — Админка NVPhotos</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div id="header-slot"></div>
+<div id="layout-slot"></div>
+
+<div class="admin-modal" id="admin-modal">
+  <div class="admin-modal-content">
+    <span class="cart-close" id="admin-modal-close">&times;</span>
+    <h2 id="admin-modal-title">Редактирование</h2>
+    <form id="admin-form"></form>
+  </div>
+</div>
+
+<script src="admin.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  renderHeader();
+  renderLayoutShell('services', `
+    <div class="admin-header-row">
+      <h1 class="admin-page-title">Услуги</h1>
+      <button class="btn-primary" id="btn-add">+ Добавить услугу</button>
+    </div>
+    <table class="admin-table">
+      <thead>
+        <tr><th>ID</th><th>Название</th><th>Цена</th><th>Поп.</th><th>Активна</th><th>Порядок</th><th>Действия</th></tr>
+      </thead>
+      <tbody id="services-tbody"></tbody>
+    </table>
+  `);
+
+  adminInit('services', async () => {
+    window.categoriesCache = await AdminAPI.get('/categories');
+    await loadServices();
+    document.getElementById('btn-add').addEventListener('click', () => openServiceForm(null));
+  });
+});
+
+async function loadServices() {
+  const tbody = document.getElementById('services-tbody');
+  const items = await AdminAPI.get('/admin/services');
+
+  tbody.innerHTML = items.map(s => `
+    <tr>
+      <td>${s.Id}</td>
+      <td>${s.Title}</td>
+      <td>${s.Price} ${s.PriceUnit || ''}</td>
+      <td>${s.IsPopular ? 'Да' : '—'}</td>
+      <td>${s.IsActive ? 'Да' : 'Нет'}</td>
+      <td>${s.SortOrder}</td>
+      <td>
+        <button class="btn-small btn-edit" data-action="edit" data-id="${s.Id}">Изменить</button>
+        <button class="btn-small btn-delete" data-action="delete" data-id="${s.Id}">Удалить</button>
+      </td>
+    </tr>`).join('') || `<tr><td colspan="7" style="text-align:center;padding:20px;color:#888;">Пусто</td></tr>`;
+
+  tbody.querySelectorAll('button[data-action="edit"]').forEach(b => b.addEventListener('click', () => openServiceForm(Number(b.dataset.id))));
+  tbody.querySelectorAll('button[data-action="delete"]').forEach(b => b.addEventListener('click', () => removeService(Number(b.dataset.id))));
+}
+
+async function openServiceForm(id = null) {
+  const isEdit = !!id;
+  let s = {};
+  if (isEdit) {
+    const all = await AdminAPI.get('/admin/services');
+    s = all.find(x => x.Id === id) || {};
+  }
+
+  const catOptions = window.categoriesCache.map(c =>
+    `<option value="${c.Id}" ${s.CategoryId === c.Id ? 'selected' : ''}>${c.Name}</option>`).join('');
+
+  const html = `
+    <label class="form-field"><span>Название *</span><input type="text" id="f-title" value="${s.Title || ''}" required></label>
+    <label class="form-field"><span>Описание</span><textarea id="f-desc" rows="3">${s.Description || ''}</textarea></label>
+    <div class="form-row-2">
+      <label class="form-field"><span>Цена</span><input type="number" id="f-price" value="${s.Price || 0}"></label>
+      <label class="form-field"><span>Единица</span><input type="text" id="f-unit" value="${s.PriceUnit || 'рублей'}"></label>
+    </div>
+    <label class="form-field"><span>Картинка</span><input type="text" id="f-image" value="${s.ImageUrl || ''}"></label>
+    <label class="form-field"><span>Категория</span><select id="f-cat"><option value="">— Нет —</option>${catOptions}</select></label>
+    <div class="form-row-2">
+      <label class="form-checkbox"><input type="checkbox" id="f-pop" ${s.IsPopular ? 'checked' : ''}><span>Популярная</span></label>
+      <label class="form-checkbox"><input type="checkbox" id="f-active" ${s.IsActive !== 0 ? 'checked' : ''}><span>Активна</span></label>
+    </div>
+    <label class="form-field"><span>Порядок</span><input type="number" id="f-sort" value="${s.SortOrder || 0}"></label>
+  `;
+
+  openModal(isEdit ? 'Изменить услугу' : 'Добавить услугу', html, async () => {
+    const data = {
+      Title: document.getElementById('f-title').value.trim(),
+      Description: document.getElementById('f-desc').value.trim(),
+      Price: Number(document.getElementById('f-price').value) || 0,
+      PriceUnit: document.getElementById('f-unit').value.trim(),
+      ImageUrl: document.getElementById('f-image').value.trim(),
+      CategoryId: Number(document.getElementById('f-cat').value) || null,
+      IsPopular: document.getElementById('f-pop').checked,
+      IsActive: document.getElementById('f-active').checked,
+      SortOrder: Number(document.getElementById('f-sort').value) || 0
+    };
+    if (isEdit) await AdminAPI.put(`/admin/services/${id}`, data);
+    else await AdminAPI.post('/admin/services', data);
+    closeModal();
+    loadServices();
+  });
+}
+
+async function removeService(id) {
+  if (!confirm('Удалить услугу?')) return;
+  await AdminAPI.del(`/admin/services/${id}`);
+  loadServices();
+}
+</script>
+</body>
+</html>

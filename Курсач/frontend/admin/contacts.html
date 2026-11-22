@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Сообщения — Админка NVPhotos</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div id="header-slot"></div>
+<div id="layout-slot"></div>
+
+<script src="admin.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  renderHeader();
+  renderLayoutShell('contacts', `
+    <div class="admin-header-row">
+      <h1 class="admin-page-title">Сообщения с формы контактов</h1>
+    </div>
+    <table class="admin-table">
+      <thead>
+        <tr><th>ID</th><th>Имя</th><th>Контакт</th><th>Сообщение</th><th>Прочитано</th><th>Действия</th></tr>
+      </thead>
+      <tbody id="contacts-tbody"></tbody>
+    </table>
+  `);
+
+  adminInit('contacts', async () => {
+    await loadContacts();
+  });
+});
+
+async function loadContacts() {
+  const tbody = document.getElementById('contacts-tbody');
+  const items = await AdminAPI.get('/admin/contacts');
+
+  tbody.innerHTML = items.map(c => `
+    <tr>
+      <td>${c.Id}</td>
+      <td>${c.Name}</td>
+      <td>${c.Contact}</td>
+      <td>${(c.Message || '').substring(0, 70)}…</td>
+      <td>${c.IsRead ? 'Да' : 'Нет'}</td>
+      <td>
+        <button class="btn-small btn-edit" data-action="read" data-id="${c.Id}" data-read="${c.IsRead ? 1 : 0}">
+          ${c.IsRead ? 'Не прочитано' : 'Прочитано'}
+        </button>
+        <button class="btn-small btn-delete" data-action="delete" data-id="${c.Id}">Удалить</button>
+      </td>
+    </tr>`).join('') || `<tr><td colspan="6" style="text-align:center;padding:20px;color:#888;">Пусто</td></tr>`;
+
+  tbody.querySelectorAll('button[data-action="read"]').forEach(b => {
+    b.addEventListener('click', async () => {
+      const newVal = b.dataset.read === '1' ? 0 : 1;
+      await AdminAPI.put(`/admin/contacts/${b.dataset.id}/read`, { IsRead: newVal });
+      loadContacts();
+    });
+  });
+
+  tbody.querySelectorAll('button[data-action="delete"]').forEach(b => {
+    b.addEventListener('click', async () => {
+      if (!confirm('Удалить сообщение?')) return;
+      await AdminAPI.del(`/admin/contacts/${b.dataset.id}`);
+      loadContacts();
+    });
+  });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Портфолио — NVPhotos</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header>
+  <div class="container header-inner">
+    <a href="index.html" class="logo">
+      <img class="logo-icon" src="img/logo.jpg" alt="NVPhotos">
+      NVPhotos
+    </a>
+    <nav>
+      <ul>
+        <li><a href="index.html">Главная</a></li>
+        <li><a href="services.html">Услуги</a></li>
+        <li><a href="achievements.html">Достижения</a></li>
+        <li><a href="portfolio.html" class="active">Портфолио</a></li>
+        <li><a href="reviews.html">Отзывы</a></li>
+        <li><a href="contacts.html">Контакты</a></li>
+        <li><a href="#" id="cart-link">Корзина <span id="cart-count">0</span></a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<section class="services-header">
+  <div class="container">
+    <h1 class="services-page-title">Портфолио</h1>
+  </div>
+</section>
+
+<section class="all-services">
+  <div class="container">
+
+    <!-- Вкладки -->
+    <div class="portfolio-tabs">
+      <button class="portfolio-tab active" data-tab="works">Мои работы</button>
+      <button class="portfolio-tab" data-tab="pinterest">Pinterest</button>
+    </div>
+
+    <!-- Контент вкладки "Мои работы" -->
+    <div class="portfolio-tab-content active" id="tab-works">
+      <div class="portfolio-filters" id="portfolio-filters"></div>
+      <div class="portfolio-grid" id="portfolio-grid"></div>
+    </div>
+
+    <!-- Контент вкладки "Pinterest" -->
+    <div class="portfolio-tab-content" id="tab-pinterest">
+      <div class="pinterest-block">
+        <p class="section-subtitle" style="text-align:center;">
+          Вдохновляйтесь нашими работами и идеями для будущих съёмок.
+        </p>
+        <a data-pin-do="embedUser"
+           data-pin-board-width="1400"
+           data-pin-scale-height="600"
+           data-pin-scale-width="120"
+           href="https://ru.pinterest.com/BankofMemoriesOff/">
+        </a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-logo">
+        <img class="logo-icon" src="img/logo.jpg" alt="NVPhotos">
+        NVPhotos
+      </div>
+      <nav class="footer-nav">
+        <ul>
+          <li><a href="index.html">Главная</a></li>
+          <li><a href="services.html">Услуги</a></li>
+          <li><a href="achievements.html">Достижения</a></li>
+          <li><a href="portfolio.html">Портфолио</a></li>
+          <li><a href="reviews.html">Отзывы</a></li>
+          <li><a href="contacts.html">Контакты</a></li>
+        </ul>
+      </nav>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="socials">
+        <a href="https://vk.ru/copilka_vospominanii" title="VK">VK</a>
+        <a href="https://t.me/bank_of_memorie" title="Telegram">TG</a>
+        <a href="https://ru.pinterest.com/BankofMemoriesOff/" title="Pinterest">PIN</a>
+      </div>
+      <div class="copyright">Все права защищены © 2026</div>
+    </div>
+  </div>
+</footer>
+
+<!-- Корзина и форма заказа -->
+<div class="cart-modal" id="cart-modal">
+  <div class="cart-modal-content">
+    <span class="cart-close" id="cart-close">&times;</span>
+    <h2>Корзина</h2>
+    <div id="cart-items"></div>
+    <div class="cart-row"><span>Подытог:</span><span id="cart-subtotal">0 ₽</span></div>
+    <div class="cart-row cart-row-discount" style="display:none;"><span>Скидка:</span><span id="cart-discount">0%</span></div>
+    <div class="cart-row cart-row-total"><span>Итого:</span><span id="cart-total">0 ₽</span></div>
+    <div class="cart-promo">
+      <input type="text" id="promo-input" placeholder="Промокод">
+      <button id="promo-apply" type="button">Применить</button>
+    </div>
+    <div id="promo-message"></div>
+    <button class="checkout-btn" id="checkout-btn" type="button">Оформить заказ</button>
+  </div>
+</div>
+
+<div class="cart-modal" id="checkout-modal">
+  <div class="cart-modal-content">
+    <span class="cart-close" id="checkout-close">&times;</span>
+    <h2>Оформление заказа</h2>
+    <form id="checkout-form">
+      <label class="form-field"><span>Имя</span><input type="text" id="checkout-name" required></label>
+      <label class="form-field"><span>Телефон</span><input type="tel" id="checkout-phone" required></label>
+      <label class="form-field"><span>Желаемое время съёмки</span><input type="text" id="checkout-time" required></label>
+      <label class="form-field"><span>Комментарий</span><textarea id="checkout-comment" rows="3"></textarea></label>
+      <div id="checkout-error" class="form-error"></div>
+      <div id="checkout-success" class="form-success" style="display:none;"></div>
+      <button type="submit" class="checkout-btn">Подтвердить заказ</button>
+    </form>
+  </div>
+</div>
+<div class="lightbox" id="lightbox">
+  <span class="lightbox-close" id="lightbox-close">&times;</span>
+  <img class="lightbox-img" id="lightbox-img" src="" alt="Просмотр фото">
+</div>
+
+<script src="js/api.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/checkout.js"></script>
+<script src="js/portfolio.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    Cart.init();
+  });
+</script>
+
+<!-- Скрипт Pinterest -->
+<script async defer src="https://assets.pinterest.com/js/pinit.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const tabs = document.querySelectorAll('.portfolio-tab');
+  const contents = {
+    works: document.getElementById('tab-works'),
+    pinterest: document.getElementById('tab-pinterest')
+  };
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Переключаем классы у кнопок
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      // Переключаем классы у контента
+      Object.values(contents).forEach(c => c.classList.remove('active'));
+      const target = contents[tab.dataset.tab];
+      target.classList.add('active');
+
+      // Если открыли Pinterest — принудительно перерисовываем виджет
+      if (tab.dataset.tab === 'pinterest') {
+        if (window.pinit && typeof window.pinit.load === 'function') {
+          // Даем браузеру долю секунды, чтобы контейнер стал видимым
+          setTimeout(() => {
+            window.pinit.load();
+          }, 100);
+        }
+      }
+    });
+  });
+});
+</script>
+</body>
+</html>

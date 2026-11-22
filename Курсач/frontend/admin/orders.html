@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Заказы — Админка NVPhotos</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div id="header-slot"></div>
+<div id="layout-slot"></div>
+
+<script src="admin.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  renderHeader();
+  renderLayoutShell('orders', `
+    <div class="admin-header-row">
+      <h1 class="admin-page-title">Заказы</h1>
+    </div>
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Клиент</th>
+          <th>Телефон</th>
+          <th>Время съёмки</th>
+          <th>Сумма</th>
+          <th>Статус</th>
+          <th>Действия</th>
+        </tr>
+      </thead>
+      <tbody id="orders-tbody"></tbody>
+    </table>
+  `);
+
+  adminInit('orders', async () => {
+    await loadOrders();
+  });
+});
+
+async function loadOrders() {
+  const tbody = document.getElementById('orders-tbody');
+  const items = await AdminAPI.get('/admin/orders');
+
+  tbody.innerHTML = items.map(o => `
+    <tr>
+      <td>${o.Id}</td>
+      <td>${o.CustomerName}</td>
+      <td>${o.Phone}</td>
+      <td>${o.ShootTime}</td>
+      <td>${o.Total} ₽</td>
+      <td>
+        <select class="status-select" data-id="${o.Id}">
+          ${['Новый','Подтверждён','Выполнен','Отменён'].map(st =>
+            `<option ${o.Status === st ? 'selected' : ''}>${st}</option>`).join('')}
+        </select>
+      </td>
+      <td>
+        <button class="btn-small btn-edit" data-action="save" data-id="${o.Id}">Сохранить</button>
+      </td>
+    </tr>`).join('') || `<tr><td colspan="7" style="text-align:center;padding:20px;color:#888;">Пусто</td></tr>`;
+
+  tbody.querySelectorAll('button[data-action="save"]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const id = btn.dataset.id;
+      const status = tbody.querySelector(`select[data-id="${id}"]`).value;
+      await AdminAPI.put(`/admin/orders/${id}/status`, { status });
+      btn.textContent = 'Сохранено ✓';
+      setTimeout(() => btn.textContent = 'Сохранить', 1200);
+    });
+  });
+}
+</script>
+</body>
+</html>

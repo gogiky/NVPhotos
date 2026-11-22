@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Достижения — Админка NVPhotos</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div id="header-slot"></div>
+<div id="layout-slot"></div>
+
+<div class="admin-modal" id="admin-modal">
+  <div class="admin-modal-content">
+    <span class="cart-close" id="admin-modal-close">&times;</span>
+    <h2 id="admin-modal-title">Достижение</h2>
+    <form id="admin-form"></form>
+  </div>
+</div>
+
+<script src="admin.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  renderHeader();
+  renderLayoutShell('achievements', `
+    <div class="admin-header-row">
+      <h1 class="admin-page-title">Достижения</h1>
+      <button class="btn-primary" id="btn-add">+ Добавить достижение</button>
+    </div>
+    <table class="admin-table">
+      <thead>
+        <tr><th>ID</th><th>Год</th><th>Заголовок</th><th>Порядок</th><th>Действия</th></tr>
+      </thead>
+      <tbody id="achievements-tbody"></tbody>
+    </table>
+  `);
+
+  adminInit('achievements', async () => {
+    await loadAchievements();
+    document.getElementById('btn-add').addEventListener('click', () => openAchievementForm(null));
+  });
+});
+
+async function loadAchievements() {
+  const tbody = document.getElementById('achievements-tbody');
+  const items = await AdminAPI.get('/admin/achievements');
+
+  tbody.innerHTML = items.map(a => `
+    <tr>
+      <td>${a.Id}</td>
+      <td>${a.Year || ''}</td>
+      <td>${a.Title}</td>
+      <td>${a.SortOrder}</td>
+      <td>
+        <button class="btn-small btn-edit" data-action="edit" data-id="${a.Id}">Изменить</button>
+        <button class="btn-small btn-delete" data-action="delete" data-id="${a.Id}">Удалить</button>
+      </td>
+    </tr>`).join('') || `<tr><td colspan="5" style="text-align:center;padding:20px;color:#888;">Пусто</td></tr>`;
+
+  tbody.querySelectorAll('button[data-action="edit"]').forEach(b => b.addEventListener('click', () => openAchievementForm(Number(b.dataset.id))));
+  tbody.querySelectorAll('button[data-action="delete"]').forEach(b => b.addEventListener('click', () => removeAchievement(Number(b.dataset.id))));
+}
+
+async function openAchievementForm(id = null) {
+  const isEdit = !!id;
+  let a = {};
+  if (isEdit) {
+    const all = await AdminAPI.get('/admin/achievements');
+    a = all.find(x => x.Id === id) || {};
+  }
+
+  const html = `
+    <label class="form-field"><span>Заголовок *</span><input type="text" id="f-title" value="${a.Title || ''}" required></label>
+    <label class="form-field"><span>Описание</span><textarea id="f-desc" rows="3">${a.Description || ''}</textarea></label>
+    <div class="form-row-2">
+      <label class="form-field"><span>Год</span><input type="number" id="f-year" value="${a.Year || ''}"></label>
+      <label class="form-field"><span>Порядок</span><input type="number" id="f-sort" value="${a.SortOrder || 0}"></label>
+    </div>
+  `;
+
+  openModal(isEdit ? 'Изменить достижение' : 'Добавить достижение', html, async () => {
+    const data = {
+      Title: document.getElementById('f-title').value.trim(),
+      Description: document.getElementById('f-desc').value.trim(),
+      Year: Number(document.getElementById('f-year').value) || null,
+      SortOrder: Number(document.getElementById('f-sort').value) || 0
+    };
+    if (isEdit) await AdminAPI.put(`/admin/achievements/${id}`, data);
+    else await AdminAPI.post('/admin/achievements', data);
+    closeModal();
+    loadAchievements();
+  });
+}
+
+async function removeAchievement(id) {
+  if (!confirm('Удалить достижение?')) return;
+  await AdminAPI.del(`/admin/achievements/${id}`);
+  loadAchievements();
+}
+</script>
+</body>
+</html>

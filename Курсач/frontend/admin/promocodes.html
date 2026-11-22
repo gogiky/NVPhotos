@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Промокоды — Админка NVPhotos</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+<body>
+
+<div id="header-slot"></div>
+<div id="layout-slot"></div>
+
+<div class="admin-modal" id="admin-modal">
+  <div class="admin-modal-content">
+    <span class="cart-close" id="admin-modal-close">&times;</span>
+    <h2 id="admin-modal-title">Промокод</h2>
+    <form id="admin-form"></form>
+  </div>
+</div>
+
+<script src="admin.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  renderHeader();
+  renderLayoutShell('promocodes', `
+    <div class="admin-header-row">
+      <h1 class="admin-page-title">Промокоды</h1>
+      <button class="btn-primary" id="btn-add">+ Добавить промокод</button>
+    </div>
+    <table class="admin-table">
+      <thead>
+        <tr><th>ID</th><th>Код</th><th>Скидка</th><th>Лимит</th><th>Исп.</th><th>Активен</th><th>Действия</th></tr>
+      </thead>
+      <tbody id="promocodes-tbody"></tbody>
+    </table>
+  `);
+
+  adminInit('promocodes', async () => {
+    await loadPromocodes();
+    document.getElementById('btn-add').addEventListener('click', () => openPromocodeForm(null));
+  });
+});
+
+async function loadPromocodes() {
+  const tbody = document.getElementById('promocodes-tbody');
+  const items = await AdminAPI.get('/admin/promocodes');
+
+  tbody.innerHTML = items.map(p => `
+    <tr>
+      <td>${p.Id}</td>
+      <td>${p.Code}</td>
+      <td>${p.DiscountPercent ? p.DiscountPercent + '%' : (p.DiscountAmount || 0) + ' ₽'}</td>
+      <td>${p.UsageLimit || '—'}</td>
+      <td>${p.UsedCount}</td>
+      <td>${p.IsActive ? 'Да' : 'Нет'}</td>
+      <td>
+        <button class="btn-small btn-edit" data-action="edit" data-id="${p.Id}">Изменить</button>
+        <button class="btn-small btn-delete" data-action="delete" data-id="${p.Id}">Удалить</button>
+      </td>
+    </tr>`).join('') || `<tr><td colspan="7" style="text-align:center;padding:20px;color:#888;">Пусто</td></tr>`;
+
+  tbody.querySelectorAll('button[data-action="edit"]').forEach(b => b.addEventListener('click', () => openPromocodeForm(Number(b.dataset.id))));
+  tbody.querySelectorAll('button[data-action="delete"]').forEach(b => b.addEventListener('click', () => removePromocode(Number(b.dataset.id))));
+}
+
+async function openPromocodeForm(id = null) {
+  const isEdit = !!id;
+  let p = {};
+  if (isEdit) {
+    const all = await AdminAPI.get('/admin/promocodes');
+    p = all.find(x => x.Id === id) || {};
+  }
+
+  const html = `
+    <label class="form-field"><span>Код *</span><input type="text" id="f-code" value="${p.Code || ''}" required></label>
+    <div class="form-row-2">
+      <label class="form-field"><span>Скидка %</span><input type="number" id="f-percent" value="${p.DiscountPercent || ''}"></label>
+      <label class="form-field"><span>Скидка ₽</span><input type="number" id="f-amount" value="${p.DiscountAmount || ''}"></label>
+    </div>
+    <label class="form-field"><span>Лимит использований</span><input type="number" id="f-limit" value="${p.UsageLimit || ''}"></label>
+    <label class="form-checkbox"><input type="checkbox" id="f-active" ${p.IsActive !== 0 ? 'checked' : ''}><span>Активен</span></label>
+  `;
+
+  openModal(isEdit ? 'Изменить промокод' : 'Добавить промокод', html, async () => {
+    const data = {
+      Code: document.getElementById('f-code').value.trim(),
+      DiscountPercent: Number(document.getElementById('f-percent').value) || null,
+      DiscountAmount: Number(document.getElementById('f-amount').value) || null,
+      UsageLimit: Number(document.getElementById('f-limit').value) || null,
+      IsActive: document.getElementById('f-active').checked
+    };
+    if (isEdit) await AdminAPI.put(`/admin/promocodes/${id}`, data);
+    else await AdminAPI.post('/admin/promocodes', data);
+    closeModal();
+    loadPromocodes();
+  });
+}
+
+async function removePromocode(id) {
+  if (!confirm('Удалить промокод?')) return;
+  await AdminAPI.del(`/admin/promocodes/${id}`);
+  loadPromocodes();
+}
+</script>
+</body>
+</html>
